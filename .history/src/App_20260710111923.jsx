@@ -30,7 +30,7 @@ function App() {
     <div className="app-shell">
       <header className="topbar">
         <Link to="/" className="brand">
-          <span className="brand-mark"></span>
+          <span className="brand-mark">🚆</span>
           <span>TrainU</span>
         </Link>
         <nav className="nav-links">
