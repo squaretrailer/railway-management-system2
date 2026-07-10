@@ -33,14 +33,14 @@ function App() {
           <span className="brand-mark"></span>
           <span>TrainU</span>
         </Link>
-        <nav className="nav-links">
+        <nav className=" bg-white shadow-md rounded-xl px-8 py-4 flex items-center gap-6">
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
               {item.label}
             </NavLink>
           ))}
         </nav>
-        <Link to="/login" className="pill-button">
+        <Link to="/login" className="pill-button ">
           Staff Login
         </Link>
       </header>
