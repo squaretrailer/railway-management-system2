@@ -1,60 +1,124 @@
-const bookings = [
-  { id: 'BK-1001', train: 'Express 101', seat: 'A12', status: 'Confirmed' },
-  { id: 'BK-1002', train: 'Night Rail', seat: 'B07', status: 'Pending' },
-];
+import { useState } from "react";
+import { useBookings, useUpdateBooking, useDeleteBooking } from "../../hooks";
+import TicketCard from "../../components/booking/TicketCard";
+import Modal from "../../components/common/Modal/Modal";
+import Button from "../../components/common/Button/Button";
+import Loader from "../../components/common/Loader/Loader";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function MyBookings() {
-  return (
-    <section className="bg-white rounded-2xl shadow-lg p-8">
+  const { data: bookings, isLoading } = useBookings();
+  const updateBooking = useUpdateBooking();
+  const deleteBooking = useDeleteBooking();
+  const navigate = useNavigate();
+  const [favorites, setFavorites] = useState([]);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
-  <div className="flex justify-between items-center mb-8">
-    <div>
-      <p className="text-amber-500 uppercase tracking-widest font-semibold">
-        Passenger Portal
-      </p>
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
 
-      <h2 className="text-3xl font-bold text-gray-800 mt-2">
-        My Bookings
-      </h2>
-    </div>
+  const handleCancelBooking = (id) => {
+    if (window.confirm("Are you sure you want to cancel this booking?")) {
+      updateBooking.mutate(
+        { id, data: { status: "cancelled" } },
+        {
+          onSuccess: () => {
+            toast.success("Booking cancelled");
+            setSelectedBooking(null);
+          },
+          onError: (err) => toast.error(err.message || "Failed to cancel booking"),
+        }
+      );
+    }
+  };
 
-    <button className="bg-amber-500 text-white px-5 py-3 rounded-lg hover:bg-amber-600 transition">
-      Book New Ticket
-    </button>
-  </div>
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this booking?")) {
+      deleteBooking.mutate(id, {
+        onSuccess: () => {
+          toast.success("Booking deleted");
+          setSelectedBooking(null);
+        },
+        onError: (err) => toast.error(err.message || "Failed to delete booking"),
+      });
+    }
+  };
 
-  <div className="space-y-4">
+  if (isLoading) return <Loader />;
 
-    {bookings.map((booking) => (
-      <div
-        key={booking.id}
-        className="flex justify-between items-center bg-amber-50 border border-amber-200 rounded-xl p-5 hover:shadow-md transition"
-      >
-
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800">
-            {booking.train}
-          </h3>
-
-          <p className="text-gray-600 mt-1">
-            Booking ID: {booking.id}
-          </p>
-
-          <p className="text-gray-600">
-            Seat: {booking.seat}
-          </p>
-        </div>
-
-        <span className="bg-amber-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
-          {booking.status}
-        </span>
-
+  if (!bookings || bookings.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-400">No bookings found.</p>
+        <Button className="mt-4" onClick={() => navigate("/bookings/new")}>
+          Book a Ticket
+        </Button>
       </div>
-    ))}
+    );
+  }
 
-  </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-amber-400 uppercase tracking-widest font-semibold">Passenger Portal</p>
+          <h2 className="text-3xl font-bold text-white mt-2">My Bookings</h2>
+        </div>
+        <Button onClick={() => navigate("/bookings/new")}>Book New Ticket</Button>
+      </div>
 
-</section>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {bookings.map((booking) => (
+          <TicketCard
+            key={booking.id}
+            booking={booking}
+            onSelect={setSelectedBooking}
+            onToggleFavorite={toggleFavorite}
+            isFavorite={favorites.includes(booking.id)}
+          />
+        ))}
+      </div>
+
+      <Modal
+        isOpen={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        title="Booking Details"
+      >
+        {selectedBooking && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div><p className="text-gray-400 text-sm">Passenger</p><p className="text-white font-medium">{selectedBooking.passengerName}</p></div>
+              <div><p className="text-gray-400 text-sm">Email</p><p className="text-white font-medium">{selectedBooking.email}</p></div>
+              <div><p className="text-gray-400 text-sm">Train</p><p className="text-white font-medium">{selectedBooking.trainId}</p></div>
+              <div><p className="text-gray-400 text-sm">Seat</p><p className="text-white font-medium">{selectedBooking.seatNumber}</p></div>
+              <div><p className="text-gray-400 text-sm">Fare</p><p className="text-white font-medium">${Number(selectedBooking.fare).toLocaleString()}</p></div>
+              <div><p className="text-gray-400 text-sm">Status</p>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  selectedBooking.status === "confirmed" ? "bg-green-600" :
+                  selectedBooking.status === "pending" ? "bg-yellow-600" :
+                  "bg-red-600"
+                }`}>
+                  {selectedBooking.status}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-3 pt-4 border-t border-gray-800">
+              {selectedBooking.status !== "cancelled" && (
+                <Button variant="danger" onClick={() => handleCancelBooking(selectedBooking.id)}>
+                  Cancel Booking
+                </Button>
+              )}
+              <Button variant="secondary" onClick={() => setSelectedBooking(null)}>Close</Button>
+              <Button variant="danger" onClick={() => handleDelete(selectedBooking.id)}>Delete</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </div>
   );
 }
 

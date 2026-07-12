@@ -1,0 +1,52 @@
+{
+  "login": {
+    "user": {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@railms.com",
+      "role": "admin"
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IkFkbWluIFVzZXIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE1MTYyMzkwMjJ9.fake-token",
+    "refreshToken": "fake-refresh-token"
+  },
+  "me": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@railms.com",
+    "role": "admin"
+  },
+  "refresh": {
+    "accessToken": "new-fake-token"
+  },
+  "logout": {},
+  "register": {},
+  "trains": [
+    { "id": 1, "name": "Express 101", "type": "express", "totalSeats": 200, "availableSeats": 156, "status": "active" },
+    { "id": 2, "name": "Night Rail", "type": "intercity", "totalSeats": 150, "availableSeats": 89, "status": "active" },
+    { "id": 3, "name": "Hill Line", "type": "regional", "totalSeats": 100, "availableSeats": 45, "status": "maintenance" },
+    { "id": 4, "name": "Coastal Express", "type": "express", "totalSeats": 180, "availableSeats": 102, "status": "active" },
+    { "id": 5, "name": "Freight Hauler", "type": "freight", "totalSeats": 50, "availableSeats": 50, "status": "inactive" }
+  ],
+  "stations": [
+    { "id": 1, "name": "Central Station", "code": "CTL", "city": "Nairobi", "platform": 4 },
+    { "id": 2, "name": "Mombasa Terminal", "code": "MBA", "city": "Mombasa", "platform": 3 },
+    { "id": 3, "name": "Kisumu Port", "code": "KSM", "city": "Kisumu", "platform": 2 },
+    { "id": 4, "name": "Nakuru Junction", "code": "NKR", "city": "Nakuru", "platform": 2 }
+  ],
+  "schedules": [
+    { "id": 1, "trainId": 1, "fromStation": "Central Station", "toStation": "Mombasa Terminal", "departureTime": "06:30", "arrivalTime": "09:15", "status": "on-time", "platform": 3 },
+    { "id": 2, "trainId": 2, "fromStation": "Central Station", "toStation": "Kisumu Port", "departureTime": "21:45", "arrivalTime": "00:20", "status": "on-time", "platform": 1 },
+    { "id": 3, "trainId": 3, "fromStation": "Nakuru Junction", "toStation": "Central Station", "departureTime": "08:00", "arrivalTime": "10:30", "status": "delayed", "platform": 2 },
+    { "id": 4, "trainId": 4, "fromStation": "Mombasa Terminal", "toStation": "Central Station", "departureTime": "14:00", "arrivalTime": "16:45", "status": "on-time", "platform": 4 }
+  ],
+  "bookings": [
+    { "id": "BK-1001", "passengerName": "John Doe", "email": "john@example.com", "phone": "0712345678", "trainId": 1, "scheduleId": 1, "seatNumber": "A12", "fare": 1500, "status": "confirmed", "fromStation": "Central Station", "toStation": "Mombasa Terminal", "departureTime": "06:30" },
+    { "id": "BK-1002", "passengerName": "Jane Smith", "email": "jane@example.com", "phone": "0723456789", "trainId": 2, "scheduleId": 2, "seatNumber": "B07", "fare": 1200, "status": "pending", "fromStation": "Central Station", "toStation": "Kisumu Port", "departureTime": "21:45" },
+    { "id": "BK-1003", "passengerName": "Bob Johnson", "email": "bob@example.com", "phone": "0734567890", "trainId": 3, "scheduleId": 3, "seatNumber": "C03", "fare": 800, "status": "confirmed", "fromStation": "Nakuru Junction", "toStation": "Central Station", "departureTime": "08:00" }
+  ],
+  "users": [
+    { "id": 1, "name": "Admin User", "email": "admin@railms.com", "role": "admin", "status": "active" },
+    { "id": 2, "name": "John Manager", "email": "manager@railms.com", "role": "manager", "status": "active" },
+    { "id": 3, "name": "Jane Agent", "email": "agent@railms.com", "role": "agent", "status": "pending" }
+  ]
+}

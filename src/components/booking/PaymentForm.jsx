@@ -1,8 +1,13 @@
-// src/components/booking/PaymentForm.jsx
-
 import { useState } from "react";
+import { validatePaymentForm } from "../../utils/validators";
+import Input from "../common/Input/Input";
+import Button from "../common/Button/Button";
+import { PAYMENT_METHODS } from "../../utils/constants";
+import { formatCurrency } from "../../utils/dateFormatter";
+import Cards from "react-credit-cards-2";
+import "react-credit-cards-2/dist/es/styles-compiled.css";
 
-export default function PaymentForm({ onPay, fare }) {
+function PaymentForm({ onPay, fare, isSubmitting = false }) {
   const [form, setForm] = useState({
     cardHolderName: "",
     cardNumber: "",
@@ -10,14 +15,28 @@ export default function PaymentForm({ onPay, fare }) {
     cvv: "",
     paymentMethod: "",
   });
+  const [errors, setErrors] = useState({});
+  const [focus, setFocus] = useState("");
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onPay(form);
+    const validationErrors = validatePaymentForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    // Remove CVV before sending to parent
+    const { cvv, ...safeData } = form;
+    onPay(safeData);
+    // Reset form after successful submission
     setForm({
       cardHolderName: "",
       cardNumber: "",
@@ -28,73 +47,99 @@ export default function PaymentForm({ onPay, fare }) {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-md border">
-      <h2 className="text-2xl font-bold mb-2 text-gray-800">
-        Payment Details
-      </h2>
+    <div className="max-w-xl mx-auto bg-gray-900 p-6 rounded-2xl border border-gray-800">
+      <h2 className="text-2xl font-bold mb-2 text-white">Payment Details</h2>
       {fare && (
-        <p className="text-cyan-700 font-semibold mb-6">
-          Total Amount Due: ${Number(fare).toLocaleString()}
+        <p className="text-amber-400 font-semibold mb-6">
+          Total Amount Due: {formatCurrency(fare)}
         </p>
       )}
+      <div className="mb-6">
+        <Cards
+          number={form.cardNumber || ""}
+          expiry={form.expiryDate || ""}
+          cvc={form.cvv || ""}
+          name={form.cardHolderName || ""}
+          focused={focus}
+          placeholders={{ name: "CARD HOLDER NAME" }}
+        />
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <select
-          name="paymentMethod"
-          value={form.paymentMethod}
-          onChange={handleChange}
-          required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none text-gray-500"
-        >
-          <option value="" disabled>Select Payment Method</option>
-          <option value="credit-card">Credit Card</option>
-          <option value="debit-card">Debit Card</option>
-          <option value="mobile-money">Mobile Money</option>
-          <option value="bank-transfer">Bank Transfer</option>
-        </select>
-        <input
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Payment Method *
+          </label>
+          <select
+            name="paymentMethod"
+            value={form.paymentMethod}
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg border border-gray-700 bg-gray-800 text-white focus:ring-2 focus:ring-amber-500 outline-none"
+            required
+          >
+            <option value="">Select Payment Method</option>
+            {PAYMENT_METHODS.map(({ value, label }) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+          {errors.paymentMethod && (
+            <p className="text-red-400 text-xs mt-1">{errors.paymentMethod}</p>
+          )}
+        </div>
+
+        <Input
+          label="Card Holder Name"
           name="cardHolderName"
           value={form.cardHolderName}
           onChange={handleChange}
-          placeholder="Card Holder Name"
+          error={errors.cardHolderName}
+          placeholder="John Doe"
+          onFocus={() => setFocus("name")}
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
+        <Input
+          label="Card Number"
           name="cardNumber"
           value={form.cardNumber}
           onChange={handleChange}
-          placeholder="Card Number e.g. 1234 5678 9012 3456"
+          error={errors.cardNumber}
+          placeholder="1234 5678 9012 3456"
           maxLength={19}
+          onFocus={() => setFocus("number")}
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
         <div className="flex gap-4">
-          <input
+          <Input
+            label="Expiry Date"
             name="expiryDate"
             value={form.expiryDate}
             onChange={handleChange}
-            placeholder="Expiry MM/YY"
+            error={errors.expiryDate}
+            placeholder="MM/YY"
             maxLength={5}
+            onFocus={() => setFocus("expiry")}
+            className="w-1/2"
             required
-            className="w-1/2 p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
           />
-          <input
+          <Input
+            label="CVV"
+            type="password"
             name="cvv"
             value={form.cvv}
             onChange={handleChange}
-            placeholder="CVV"
-            maxLength={3}
+            error={errors.cvv}
+            placeholder="•••"
+            maxLength={4}
+            onFocus={() => setFocus("cvc")}
+            className="w-1/2"
             required
-            className="w-1/2 p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white p-3 rounded-lg transition"
-        >
+        <Button type="submit" isLoading={isSubmitting} fullWidth>
           Confirm Payment
-        </button>
+        </Button>
       </form>
     </div>
   );
 }
+
+export default PaymentForm;

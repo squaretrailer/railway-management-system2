@@ -1,75 +1,101 @@
-const stations = [
-  { name: 'Colombo Fort', code: 'CMB', active: true },
-  { name: 'Kandy', code: 'KDY', active: true },
-  { name: 'Galle', code: 'GLL', active: false },
-];
+import { useState } from "react";
+import { useStations, useAddStation, useUpdateStation, useDeleteStation } from "../../hooks";
+import StationList from "../../components/stations/StationList";
+import StationForm from "../../components/stations/StationForm";
+import Modal from "../../components/common/Modal/Modal";
+import Button from "../../components/common/Button/Button";
+import { toast } from "react-hot-toast";
 
 function StationManagement() {
+  const { data: stations, isLoading } = useStations();
+  const addStation = useAddStation();
+  const updateStation = useUpdateStation();
+  const deleteStation = useDeleteStation();
+
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingStation, setEditingStation] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
+
+  const handleAdd = (data) => {
+    addStation.mutate(data, {
+      onSuccess: () => {
+        toast.success("Station added successfully");
+        setIsFormOpen(false);
+      },
+      onError: (err) => toast.error(err.message || "Failed to add station"),
+    });
+  };
+
+  const handleUpdate = (data) => {
+    if (!editingStation) return;
+    updateStation.mutate(
+      { id: editingStation.id, data },
+      {
+        onSuccess: () => {
+          toast.success("Station updated successfully");
+          setIsFormOpen(false);
+          setEditingStation(null);
+        },
+        onError: (err) => toast.error(err.message || "Failed to update station"),
+      }
+    );
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this station?")) {
+      deleteStation.mutate(id, {
+        onSuccess: () => toast.success("Station deleted successfully"),
+        onError: (err) => toast.error(err.message || "Failed to delete station"),
+      });
+    }
+  };
+
+  const openEditForm = (station) => {
+    setEditingStation(station);
+    setIsFormOpen(true);
+  };
+
   return (
-    <section className="bg-white rounded-2xl shadow-lg p-8">
-
-  <div className="flex justify-between items-center mb-8">
-    <div>
-      <p className="text-amber-500 uppercase tracking-widest font-semibold">
-        Station Control
-      </p>
-
-      <h2 className="text-3xl font-bold text-gray-800 mt-2">
-        Manage Stations
-      </h2>
-
-      <p className="text-gray-500 mt-2">
-        Monitor and manage all railway stations across the network.
-      </p>
-    </div>
-
-    <button className="bg-amber-500 text-white px-5 py-3 rounded-lg hover:bg-amber-600 transition">
-      Add Station
-    </button>
-  </div>
-
-  <div className="space-y-4">
-
-    {stations.map((station) => (
-      <div
-        key={station.code}
-        className="flex justify-between items-center bg-amber-50 border border-amber-200 rounded-xl p-5 hover:shadow-md transition"
-      >
-
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-semibold text-gray-800">
-            {station.name}
-          </h3>
-
-          <p className="text-gray-600 mt-1">
-            Station Code: {station.code}
-          </p>
+          <p className="text-amber-400 uppercase tracking-widest font-semibold">Station Management</p>
+          <h2 className="text-3xl font-bold text-white mt-2">All Stations</h2>
         </div>
-
-        <div className="flex items-center gap-4">
-
-          <span
-            className={`px-4 py-2 rounded-full text-sm font-semibold ${
-              station.active
-                ? "bg-amber-500 text-white"
-                : "bg-gray-300 text-gray-700"
-            }`}
-          >
-            {station.active ? "Active" : "Maintenance"}
-          </span>
-
-          <button className="border border-amber-500 text-amber-600 px-4 py-2 rounded-lg hover:bg-amber-500 hover:text-white transition">
-            View
-          </button>
-
-        </div>
-
+        <Button onClick={() => { setEditingStation(null); setIsFormOpen(true); }}>
+          Add Station
+        </Button>
       </div>
-    ))}
 
-  </div>
+      <StationList
+        stations={stations || []}
+        loading={isLoading}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+        onEdit={openEditForm}
+        onDelete={handleDelete}
+      />
 
-</section>
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => { setIsFormOpen(false); setEditingStation(null); }}
+        title={editingStation ? "Edit Station" : "Add Station"}
+      >
+        <StationForm
+          onAdd={handleAdd}
+          onUpdate={handleUpdate}
+          initialData={editingStation}
+          isSubmitting={addStation.isPending || updateStation.isPending}
+          isEditing={!!editingStation}
+        />
+      </Modal>
+    </div>
   );
 }
 

@@ -1,28 +1,45 @@
-// src/hooks/useTrains.js
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getTrains, addTrain, updateTrain, deleteTrain } from "../services/trainService";
 
-import { useState, useEffect } from "react";
-import { getTrains } from "../services/trainService";
+export const TRAINS_QUERY_KEY = ["trains"];
 
 export function useTrains() {
-  const [trains, setTrains]   = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  return useQuery({
+    queryKey: TRAINS_QUERY_KEY,
+    queryFn: getTrains,
+    select: (res) => res.data,
+  });
+}
 
-  const fetchTrains = async () => {
-    setLoading(true);
-    try {
-      const res = await getTrains();
-      setTrains(res.data);
-    } catch (err) {
-      setError(err.message || "Failed to fetch trains");
-    } finally {
-      setLoading(false);
-    }
-  };
+export function useTrain(id) {
+  return useQuery({
+    queryKey: [...TRAINS_QUERY_KEY, id],
+    queryFn: () => getTrainById(id),
+    select: (res) => res.data,
+    enabled: !!id,
+  });
+}
 
-  useEffect(() => {
-    fetchTrains();
-  }, []);
+export function useAddTrain() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: addTrain,
+    onSuccess: () => qc.invalidateQueries({ queryKey: TRAINS_QUERY_KEY }),
+  });
+}
 
-  return { trains, loading, error, refetch: fetchTrains };
+export function useUpdateTrain() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }) => updateTrain(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: TRAINS_QUERY_KEY }),
+  });
+}
+
+export function useDeleteTrain() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteTrain,
+    onSuccess: () => qc.invalidateQueries({ queryKey: TRAINS_QUERY_KEY }),
+  });
 }

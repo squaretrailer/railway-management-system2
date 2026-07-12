@@ -1,70 +1,70 @@
-// src/routes/AppRoutes.jsx
-
+import { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+import AdminLayout from "../layouts/AdminLayout";
+import AuthLayout from "../layouts/AuthLayout";
+import PrivateRoute from "./PrivateRoute";
+import AdminRoute from "./AdminRoute";
+import Loader from "../components/common/Loader/Loader";
 
-// Home & Auth
-import Home                from "../pages/Home/Home";
-import Login               from "../pages/Login/Login";
-import NotFound            from "../pages/NotFound/NotFound";
-
-// Dashboard
-import Dashboard           from "../pages/Dashboard/Dashboard";
-
-// Trains
-import TrainListPage       from "../pages/Trains/TrainList";
-import TrainDetailsPage    from "../pages/Trains/TrainDetails";
-import AddTrain            from "../pages/Trains/AddTrain";
-
-// Stations
-import StationManagement   from "../pages/Stations/StationManagement";
-
-// Schedules
-import ScheduleManagement  from "../pages/Schedules/ScheduleManagement";
-
-// Bookings
-import MyBookings          from "../pages/Bookings/MyBookings";
-import BookTicket          from "../pages/Bookings/BookTicket";
-import BookingConfirmation from "../pages/Bookings/BookingConfirmation";
-
-// Admin
-import UserManagement      from "../pages/Admin/UserManagement";
-import Reports             from "../pages/Admin/Reports";
+const Home = lazy(() => import("../pages/Home/Home"));
+const Login = lazy(() => import("../pages/Login/Login"));
+const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
+const TrainList = lazy(() => import("../pages/Trains/TrainList"));
+const TrainDetails = lazy(() => import("../pages/Trains/TrainDetails"));
+const AddTrain = lazy(() => import("../pages/Trains/AddTrain"));
+const StationManagement = lazy(() => import("../pages/Stations/StationManagement"));
+const ScheduleManagement = lazy(() => import("../pages/Schedules/ScheduleManagement"));
+const MyBookings = lazy(() => import("../pages/Bookings/MyBookings"));
+const BookTicket = lazy(() => import("../pages/Bookings/BookTicket"));
+const BookingConfirmation = lazy(() => import("../pages/Bookings/BookingConfirmation"));
+const UserManagement = lazy(() => import("../pages/Admin/UserManagement"));
+const Reports = lazy(() => import("../pages/Admin/Reports"));
+const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
 
 function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<Loader fullScreen />}>
+      <Routes>
+        <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
 
-      {/* ── Public Routes ── */}
-      <Route path="/"     element={<Home />} />
-      <Route path="/login" element={<Login />} />
-
-      {/* ── Dashboard ── */}
-      <Route path="/dashboard" element={<Dashboard />} />
-
-      {/* ── Trains ── */}
-      <Route path="/trains"     element={<TrainListPage />} />
-      <Route path="/trains/add" element={<AddTrain />} />
-      <Route path="/trains/:id" element={<TrainDetailsPage />} />
-
-      {/* ── Stations ── */}
-      <Route path="/stations" element={<StationManagement />} />
-
-      {/* ── Schedules ── */}
-      <Route path="/schedules" element={<ScheduleManagement />} />
-
-      {/* ── Bookings ── */}
-      <Route path="/bookings"         element={<MyBookings />} />
-      <Route path="/bookings/new"     element={<BookTicket />} />
-      <Route path="/bookings/confirm" element={<BookingConfirmation />} />
-
-      {/* ── Admin ── */}
-      <Route path="/admin/users"   element={<UserManagement />} />
-      <Route path="/admin/reports" element={<Reports />} />
-
-      {/* ── 404 ── */}
-      <Route path="*" element={<NotFound />} />
-
-    </Routes>
+        <Route path="/dashboard" element={
+          <PrivateRoute><AdminLayout><Dashboard /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/trains" element={
+          <PrivateRoute><AdminLayout><TrainList /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/trains/add" element={
+          <PrivateRoute><AdminLayout><AddTrain /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/trains/:id" element={
+          <PrivateRoute><AdminLayout><TrainDetails /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/stations" element={
+          <PrivateRoute><AdminLayout><StationManagement /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/schedules" element={
+          <PrivateRoute><AdminLayout><ScheduleManagement /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/bookings" element={
+          <PrivateRoute><AdminLayout><MyBookings /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/bookings/new" element={
+          <PrivateRoute><AdminLayout><BookTicket /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/bookings/confirm" element={
+          <PrivateRoute><AdminLayout><BookingConfirmation /></AdminLayout></PrivateRoute>
+        } />
+        <Route path="/admin/users" element={
+          <AdminRoute><AdminLayout><UserManagement /></AdminLayout></AdminRoute>
+        } />
+        <Route path="/admin/reports" element={
+          <AdminRoute><AdminLayout><Reports /></AdminLayout></AdminRoute>
+        } />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
 

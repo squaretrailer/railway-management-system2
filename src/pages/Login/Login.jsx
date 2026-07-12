@@ -1,56 +1,90 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { validateLoginForm } from "../../utils/validators";
+import Input from "../../components/common/Input/Input";
+import Button from "../../components/common/Button/Button";
+
 function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validationErrors = validateLoginForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setServerError(null);
+    setIsSubmitting(true);
+
+    try {
+      await login(form.email, form.password);
+      navigate("/dashboard");
+    } catch (err) {
+      setServerError(err.message || "Login failed. Please check your credentials.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <section className="min-h-screen flex items-center justify-center bg-amber-50 px-6">
-  <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 border-t-8 border-amber-500">
+    <div>
+      <p className="text-amber-600 font-semibold uppercase tracking-wider">
+        Railway Management System
+      </p>
+      <h2 className="text-3xl font-bold text-white mt-2">Staff Login</h2>
+      <p className="text-gray-400 mt-2 mb-6">
+        Sign in to access the railway management dashboard.
+      </p>
 
-    <p className="text-amber-600 font-semibold uppercase tracking-wider">
-      Railway Management System
-    </p>
+      {serverError && (
+        <div className="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded-lg mb-4">
+          {serverError}
+        </div>
+      )}
 
-    <h2 className="text-3xl font-bold text-gray-800 mt-2">
-      Staff Login
-    </h2>
-
-    <p className="text-gray-500 mt-2 mb-6">
-      Sign in to access the railway management dashboard.
-    </p>
-
-    <form className="space-y-5">
-
-      <div>
-        <label className="block text-gray-700 font-medium mb-2">
-          Email Address
-        </label>
-
-        <input
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          label="Email Address"
           type="email"
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+          error={errors.email}
           placeholder="staff@railway.com"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          required
         />
-      </div>
-
-      <div>
-        <label className="block text-gray-700 font-medium mb-2">
-          Password
-        </label>
-
-        <input
+        <Input
+          label="Password"
           type="password"
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          error={errors.password}
           placeholder="Enter password"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          required
         />
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-amber-500 text-white font-semibold py-3 rounded-lg hover:bg-amber-600 transition"
-      >
-        Sign In
-      </button>
-
-    </form>
-  </div>
-</section>
+        <Button type="submit" isLoading={isSubmitting} fullWidth>
+          Sign In
+        </Button>
+      </form>
+    </div>
   );
 }
 

@@ -1,47 +1,34 @@
+import { Link } from "react-router-dom";
+import { FaCheckCircle } from "react-icons/fa";
+import Button from "../../components/common/Button/Button";
+
 function BookingConfirmation() {
   return (
-    <section className="min-h-screen flex items-center justify-center bg-amber-50 px-6">
-
-  <div className="bg-white shadow-xl rounded-2xl p-10 max-w-lg w-full text-center border-t-8 border-amber-500">
-
-    <p className="text-amber-500 uppercase tracking-widest font-semibold">
-      Booking Confirmation
-    </p>
-
-    <h2 className="text-3xl font-bold text-gray-800 mt-3">
-      Booking Complete
-    </h2>
-
-    <p className="text-gray-600 mt-4">
-      Your ticket has been booked successfully. A confirmation has been generated and your booking is now available in the system.
-    </p>
-
-    <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-8">
-      <p className="text-gray-500 text-sm">
-        Booking Reference
-      </p>
-
-      <h3 className="text-3xl font-bold text-amber-600 mt-2">
-        BK-1003
-      </h3>
-    </div>
-
-    <div className="flex justify-center gap-4 mt-8">
-
-      <button className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition">
-        View Booking
-      </button>
-
-      <button className="border border-amber-500 text-amber-600 px-6 py-3 rounded-lg hover:bg-amber-50 transition">
-        Back to Dashboard
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-)
+    <section className="min-h-screen flex items-center justify-center bg-gray-950 px-6">
+      <div className="bg-gray-900 shadow-xl rounded-2xl p-10 max-w-lg w-full text-center border-t-8 border-amber-500">
+        <div className="flex justify-center mb-4">
+          <FaCheckCircle className="text-amber-400 text-6xl" />
+        </div>
+        <p className="text-amber-400 uppercase tracking-widest font-semibold">Booking Confirmation</p>
+        <h2 className="text-3xl font-bold text-white mt-3">Booking Complete</h2>
+        <p className="text-gray-400 mt-4">
+          Your ticket has been booked successfully. A confirmation has been generated and your booking is now available in the system.
+        </p>
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mt-8">
+          <p className="text-gray-400 text-sm">Booking Reference</p>
+          <h3 className="text-3xl font-bold text-amber-400 mt-2">BK-{String(Math.floor(1000 + Math.random() * 9000))}</h3>
+        </div>
+        <div className="flex justify-center gap-4 mt-8">
+          <Link to="/bookings">
+            <Button>View Booking</Button>
+          </Link>
+          <Link to="/dashboard">
+            <Button variant="outline">Back to Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export default BookingConfirmation;

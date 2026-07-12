@@ -1,8 +1,9 @@
-// src/components/booking/BookingForm.jsx
-
 import { useState } from "react";
+import { validateBookingForm } from "../../utils/validators";
+import Input from "../common/Input/Input";
+import Button from "../common/Button/Button";
 
-export default function BookingForm({ onAdd }) {
+function BookingForm({ onAdd, isSubmitting = false }) {
   const [form, setForm] = useState({
     passengerName: "",
     email: "",
@@ -12,14 +13,25 @@ export default function BookingForm({ onAdd }) {
     seatNumber: "",
     fare: "",
   });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const validationErrors = validateBookingForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     onAdd(form);
+    // Reset form after successful submission (optional, depends on parent)
     setForm({
       passengerName: "",
       email: "",
@@ -32,77 +44,81 @@ export default function BookingForm({ onAdd }) {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-md border">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        New Booking
-      </h2>
+    <div className="max-w-xl mx-auto bg-gray-900 p-6 rounded-2xl border border-gray-800">
+      <h2 className="text-2xl font-bold mb-6 text-white">New Booking</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
+        <Input
+          label="Passenger Name"
           name="passengerName"
           value={form.passengerName}
           onChange={handleChange}
-          placeholder="Passenger Full Name"
+          error={errors.passengerName}
+          placeholder="Enter full name"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
-          name="email"
+        <Input
+          label="Email"
           type="email"
+          name="email"
           value={form.email}
           onChange={handleChange}
-          placeholder="Email Address"
+          error={errors.email}
+          placeholder="email@example.com"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
-          name="phone"
+        <Input
+          label="Phone"
           type="tel"
+          name="phone"
           value={form.phone}
           onChange={handleChange}
-          placeholder="Phone Number"
+          error={errors.phone}
+          placeholder="0712345678"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
+        <Input
+          label="Train ID"
           name="trainId"
           value={form.trainId}
           onChange={handleChange}
-          placeholder="Train ID"
+          error={errors.trainId}
+          placeholder="e.g. TR-101"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
+        <Input
+          label="Schedule ID"
           name="scheduleId"
           value={form.scheduleId}
           onChange={handleChange}
-          placeholder="Schedule ID"
+          error={errors.scheduleId}
+          placeholder="e.g. SCH-001"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
+        <Input
+          label="Seat Number"
           name="seatNumber"
           value={form.seatNumber}
           onChange={handleChange}
-          placeholder="Seat Number e.g. A12"
+          error={errors.seatNumber}
+          placeholder="e.g. A12"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
-          name="fare"
+        <Input
+          label="Fare"
           type="number"
+          name="fare"
           value={form.fare}
           onChange={handleChange}
-          placeholder="Fare Amount e.g. 150"
+          error={errors.fare}
+          placeholder="e.g. 1500"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <button
-          type="submit"
-          className="w-full bg-cyan-700 hover:bg-cyan-800 text-white p-3 rounded-lg transition"
-        >
+        <Button type="submit" isLoading={isSubmitting} fullWidth>
           Book Ticket
-        </button>
+        </Button>
       </form>
     </div>
   );
 }
+
+export default BookingForm;

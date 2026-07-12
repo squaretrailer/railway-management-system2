@@ -1,68 +1,33 @@
-// src/components/common/Input/Input.jsx
+function Loader({ size = "md", text = "Loading...", fullScreen = false }) {
+  const sizes = {
+    sm: "w-6 h-6 border-2",
+    md: "w-10 h-10 border-4",
+    lg: "w-16 h-16 border-4",
+  };
 
-const Input = ({
-  label,
-  name,
-  type = "text",
-  value,
-  onChange,
-  placeholder,
-  required = false,
-  disabled = false,
-  error,
-  icon,
-}) => {
-  return (
-    <div className="flex flex-col gap-1 w-full">
-
-      {/* Label */}
-      {label && (
-        <label
-          htmlFor={name}
-          className="text-sm font-medium text-gray-300"
-        >
-          {label}
-          {required && <span className="text-red-400 ml-1">*</span>}
-        </label>
-      )}
-
-      {/* Input Wrapper */}
-      <div className="relative">
-
-        {/* Icon — shown on left if passed */}
-        {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {icon}
-          </div>
-        )}
-
-        <input
-          id={name}
-          name={name}
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          disabled={disabled}
-          className={`
-            w-full p-3 rounded-lg border outline-none transition text-sm
-            bg-gray-800 text-white placeholder-gray-500
-            focus:ring-2 focus:ring-cyan-400 focus:border-transparent
-            disabled:opacity-50 disabled:cursor-not-allowed
-            ${error ? "border-red-500" : "border-gray-700"}
-            ${icon ? "pl-10" : ""}
-          `}
-        />
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <p className="text-red-400 text-xs mt-1">{error}</p>
-      )}
-
+  const spinner = (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div
+        className={`
+          ${sizes[size]}
+          rounded-full
+          border-gray-700
+          border-t-amber-400
+          animate-spin
+        `}
+      />
+      {text && <p className="text-gray-400 text-sm animate-pulse">{text}</p>}
     </div>
   );
-};
 
-export default Input;
+  if (fullScreen) {
+    return (
+      <div className="fixed inset-0 bg-gray-950/80 backdrop-blur-sm flex items-center justify-center z-50">
+        {spinner}
+      </div>
+    );
+  }
+  return <div className="flex items-center justify-center py-16">{spinner}</div>;
+}
+
+export default Loader;

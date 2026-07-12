@@ -1,71 +1,83 @@
-// src/components/stations/StationForm.jsx
-
 import { useState } from "react";
+import { validateStationForm } from "../../utils/validators";
+import Input from "../common/Input/Input";
+import Button from "../common/Button/Button";
 
-export default function StationForm({ onAdd }) {
+function StationForm({ onAdd, isSubmitting = false }) {
   const [form, setForm] = useState({
     name: "",
     code: "",
     city: "",
     platform: "",
   });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const validationErrors = validateStationForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     onAdd(form);
     setForm({ name: "", code: "", city: "", platform: "" });
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-md border">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Add Station
-      </h2>
+    <div className="max-w-xl mx-auto bg-gray-900 p-6 rounded-2xl border border-gray-800">
+      <h2 className="text-2xl font-bold mb-6 text-white">Add Station</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
+        <Input
+          label="Station Name"
           name="name"
           value={form.name}
           onChange={handleChange}
+          error={errors.name}
           placeholder="Station Name e.g. Central Station"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
+        <Input
+          label="Station Code"
           name="code"
           value={form.code}
           onChange={handleChange}
+          error={errors.code}
           placeholder="Station Code e.g. CTL"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
+        <Input
+          label="City"
           name="city"
           value={form.city}
           onChange={handleChange}
+          error={errors.city}
           placeholder="City e.g. Nairobi"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <input
-          name="platform"
+        <Input
+          label="Number of Platforms"
           type="number"
+          name="platform"
           value={form.platform}
           onChange={handleChange}
-          placeholder="Number of Platforms e.g. 4"
+          error={errors.platform}
+          placeholder="e.g. 4"
           required
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none"
         />
-        <button
-          type="submit"
-          className="w-full bg-cyan-600 hover:bg-cyan-700 text-white p-3 rounded-lg transition"
-        >
+        <Button type="submit" isLoading={isSubmitting} fullWidth>
           Add Station
-        </button>
+        </Button>
       </form>
     </div>
   );
 }
+
+export default StationForm;
