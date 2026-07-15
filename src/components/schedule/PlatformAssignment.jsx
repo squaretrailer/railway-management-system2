@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { FaTrain, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import { MdPlace } from "react-icons/md";
 
@@ -36,19 +36,34 @@ const PlatformAssignment = ({ schedules, stations, onAssign }) => {
           const isAssigned = !!schedule.platform;
 
           return (
-            <div key={schedule.id} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div
+              key={schedule.id}
+              className="bg-gray-900 border border-gray-800 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+            >
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-white font-semibold"><FaTrain className="text-amber-400" /> Train #{schedule.trainId || "N/A"}</div>
+                <div className="flex items-center gap-2 text-white font-semibold">
+                  <FaTrain className="text-amber-400" />
+                  Train #{schedule.trainId || "N/A"}
+                </div>
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <FaMapMarkerAlt className="text-amber-400" /><span>{schedule.fromStation || "?"}</span>
+                  <FaMapMarkerAlt className="text-amber-400" />
+                  <span>{schedule.fromStation || "?"}</span>
                   <span className="text-gray-600">→</span>
-                  <FaMapMarkerAlt className="text-red-400" /><span>{schedule.toStation || "?"}</span>
+                  <FaMapMarkerAlt className="text-red-400" />
+                  <span>{schedule.toStation || "?"}</span>
                 </div>
                 <div className="flex items-center gap-4 text-gray-400 text-sm">
-                  <div className="flex items-center gap-1"><FaClock className="text-amber-400" /> Departs: {schedule.departureTime || "?"}</div>
-                  <div className="flex items-center gap-1"><FaClock className="text-gray-500" /> Arrives: {schedule.arrivalTime || "?"}</div>
+                  <div className="flex items-center gap-1">
+                    <FaClock className="text-amber-400" />
+                    Departs: {schedule.departureTime || "?"}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FaClock className="text-gray-500" />
+                    Arrives: {schedule.arrivalTime || "?"}
+                  </div>
                 </div>
               </div>
+
               <div className="flex items-center gap-3">
                 <MdPlace className="text-amber-400 text-xl" />
                 <select
@@ -58,7 +73,9 @@ const PlatformAssignment = ({ schedules, stations, onAssign }) => {
                   disabled={isAssigned}
                 >
                   <option value="" disabled>Select Platform</option>
-                  {platformOptions.map((p) => <option key={p} value={p}>Platform {p}</option>)}
+                  {platformOptions.map((p) => (
+                    <option key={p} value={p}>Platform {p}</option>
+                  ))}
                 </select>
                 <button
                   onClick={() => handleSubmit(schedule.id)}
@@ -67,7 +84,9 @@ const PlatformAssignment = ({ schedules, stations, onAssign }) => {
                 >
                   Assign
                 </button>
-                {isAssigned && <span className="text-green-400 text-sm font-medium">✓ Platform {schedule.platform}</span>}
+                {isAssigned && (
+                  <span className="text-green-400 text-sm font-medium">✓ Platform {schedule.platform}</span>
+                )}
               </div>
             </div>
           );

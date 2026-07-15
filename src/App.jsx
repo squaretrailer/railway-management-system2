@@ -5,6 +5,7 @@ import AppRoutes from "./routes/AppRoutes";
 import { AuthProvider } from "./context/AuthContext";
 import { BookingProvider } from "./context/BookingContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { ConfirmProvider } from "./context/ConfirmContext";
 import ErrorBoundary from "./components/common/ErrorBoundary/ErrorBoundary";
 import "./index.css";
 
@@ -26,7 +27,9 @@ function App() {
           <BrowserRouter>
             <AuthProvider>
               <BookingProvider>
-                <AppRoutes />
+                <ConfirmProvider>
+                  <AppRoutes />
+                </ConfirmProvider>
               </BookingProvider>
             </AuthProvider>
           </BrowserRouter>

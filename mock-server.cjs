@@ -5,6 +5,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ─── Root route – prevents 404 on / ───────────────────────────
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Mock API is running', endpoints: ['/login', '/trains', '/stations', '/schedules', '/bookings', '/users'] });
+});
+
 // ─── In-memory data ──────────────────────────────────────────
 
 let trains = [
@@ -69,7 +75,6 @@ app.post('/login', (req, res) => {
 app.get('/me', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Unauthorized' });
-  // Return admin for simplicity
   res.json({ id: 1, name: 'Admin User', email: 'admin@railms.com', role: 'admin' });
 });
 
