@@ -1,7 +1,7 @@
 function Login() {
   return (
-    <section className="min-h-screen flex items-center justify-center bg-amber-50 px-6">
-  <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 border-t-8 border-amber-500">
+  <section className="min-h-screen flex items-center justify-center bg-amber-50 px-6">
+    <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 border-t-8 border-amber-500">
 
     <p className="text-amber-600 font-semibold uppercase tracking-wider">
       Railway Management System
